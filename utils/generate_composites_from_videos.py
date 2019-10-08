@@ -41,18 +41,23 @@ def main(pngs_dir, start_index, end_index, name, print_info=True):
 			os.makedirs(directory)
 		
 	# Background videos folder
-	vids_dir = os.path.join(root_dir, 'data/bg')
+	bg_dir = os.path.join(root_dir, 'data/bg')
 
 	# For each composite,
 	for x in range(start_index, end_index+1):
 		
 		# Randomly select a frame from a randomly selected video
-		vid_path = rand.choice(glob.glob(os.path.join(vids_dir, '*.MOV')))
-		vid = cv2.VideoCapture(vid_path)
-		num_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-		rand_frame = rand.randint(0,num_frames-1)
-		vid.set(1, rand_frame)
-		_, bg = vid.read()
+		try:
+			vid_path = rand.choice(glob.glob(os.path.join(bg_dir, '*.mov')))
+			vid = cv2.VideoCapture(vid_path)
+			num_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+			rand_frame = rand.randint(0,num_frames-1)
+			vid.set(1, rand_frame)
+			_, bg = vid.read()
+		except IndexError:
+			img_path = rand.choice(glob.glob(os.path.join(bg_dir, '*.jpg')))
+			bg = cv2.imread(img_path)
+
 		bg = cv2.resize(bg, (COMPOSITE_WIDTH, COMPOSITE_HEIGHT))
 		
 		# Create empty backgrounds
@@ -63,7 +68,7 @@ def main(pngs_dir, start_index, end_index, name, print_info=True):
 		classes_list = list()
 
 		# Randomly select classes to appear in the composite
-		chosen_classes = rand.sample(range(num_classes), NUM_CLASSES_IN_EACH_COMPOSITE)
+		chosen_classes = rand.sample(range(num_classes), min(num_classes, NUM_CLASSES_IN_EACH_COMPOSITE))
 		for class_id in chosen_classes:
 			ret = False
 			while not ret:

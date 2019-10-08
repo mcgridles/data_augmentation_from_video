@@ -26,11 +26,12 @@ def extract_from_video(video_path, output_dirname, start_time=5, end_time=52, fr
 
 		# Print progress
 		frames_processed += 1
-		percent_done = frames_processed/total_frames_to_process
-		progress_bar = '['+('='*int(percent_done*30))+'>'+('-'*(29-int(percent_done*30)))+']'
+		percent_done = float(frames_processed)/total_frames_to_process
+		progress_bar = '['+('='*int(percent_done*30))+'>'*(1-int(percent_done))+('-'*(29-int(percent_done*30)))+']'
 		sys.stdout.write('\r'+progress_bar+' %d of %d generated'%(frames_processed, total_frames_to_process))
 		sys.stdout.flush()
 
 		frame += frame_increment
 
 	vid.release()
+	print('')
