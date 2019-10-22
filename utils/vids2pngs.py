@@ -15,9 +15,10 @@ def show_progress(current, total, label=''):
 	equals = '='*int(percent_done*30)
 	arrow = '>'*(1-int(percent_done))
 	dash = '-'*(29-int(percent_done*30))
-	progress_bar = '{0}[{1}{2}{3}] {4}%'.format(label, equals, arrow, dash, percent_done*100)
+	progress_bar = '[{0}{1}{2}]'.format(equals, arrow, dash, )
 
-	sys.stdout.write('\r{0} {1} of {2} generated'.format(progress_bar, current, total))
+	status = '\r{0}{1} {2} of {3} generated ({4}%)'.format(label, progress_bar, current, total, round(percent_done*100, 1))
+	sys.stdout.write(status)
 	sys.stdout.flush()
 
 
