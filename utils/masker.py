@@ -2,6 +2,99 @@ import cv2
 import numpy as np
 import time
 
+
+class ObjectExtractor:
+	"""
+	Object extraction class
+	"""
+
+	def __init__(self, extract_type='simple'):
+		self.extract_type = extract_type
+		
+		self.bg = None
+		self.num_bg_frames = 0
+		self.fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
+
+	def learnBackground(self, bg):
+		"""
+		Wrapper function for background learning. Allows use of different algorithms.
+		"""
+
+		bg = cv2.resize(bg,(960,540))
+
+		if self.extract_type == 'simple':
+			self._learnBackgroundSimple(bg)
+		elif self.extract_type == 'MOG':
+			self._learnBackgroundMOG(bg)
+
+	def _learnBackgroundSimple(self, bg):
+		"""
+		Add up weighted background frames to be averaged later.
+		"""
+
+		self.num_bg_frames += 1
+		if self.bg is None:
+			self.bg = np.float32(bg) * (1 / self.num_bg_frames)
+		else:
+			self.bg += np.float32(bg) * (1 / self.num_bg_frames)
+
+	def _learnBackgroundMOG(self, bg):
+		"""
+		Use OpenCV background subtractor MOG algorithm.
+		"""
+
+		self.fgbg.apply(bg)
+
+	def extractObject(self, img, thresh=150):
+		"""
+		Wrapper function for object extraction. Allows use of different algorithms.
+		"""
+
+		img = cv2.resize(img,(960,540))
+
+		if self.extract_type == 'simple':
+			img = self._extractObjectSimple(img, thresh)
+		elif self.extract_type == 'MOG':
+			img = self._extractObjectMOG(img)
+
+		return img
+
+	def _extractObjectSimple(self, img, thresh):
+		"""
+		Uses weighted average of background frames to subtract from current current frame.
+		"""
+
+		bg_avg = np.float32(self.bg) / self.num_bg_frames
+		bg_avg = (bg_avg / np.max(bg_avg)) * 255
+
+		diff = np.abs(bg_avg - img)
+		_, mask = cv2.threshold(diff, thresh, 255, cv2.THRESH_BINARY)
+		mask = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY).astype(np.uint8)
+
+		mask = inflateErode(mask,40)
+		mask = erodeInflateSmart(mask,20)
+		mask = contourMask(mask)
+
+		img = cv2.cvtColor(img,cv2.COLOR_BGR2BGRA)
+		img[mask==0] = (0,0,0,0)
+
+		return img
+
+	def _extractObjectMOG(self, img):
+		"""
+		Uses OpenCV background subtraction MOG algorithm.
+		"""
+
+		mask = self.fgbg.apply(img)
+		mask = inflateErode(mask,40)
+		mask = erodeInflateSmart(mask,20)
+		mask = contourMask(mask)
+
+		img = cv2.cvtColor(img,cv2.COLOR_BGR2BGRA)
+		img[mask==0] = (0,0,0,0)
+
+		return img
+
 def cropBox(img): # Input: Image with only the object
 	mask = img[:,:,3]
 	x,y,w,h = cv2.boundingRect(mask)
@@ -37,17 +130,17 @@ def contourMask(mask):
 	z = np.zeros(mask.shape)
 	max_area = 0;
 	max_index = 0;
-	i=0
-	for c in cnt:
+
+	for i, c in enumerate(cnt):
 		area = cv2.contourArea(c)
 		if area > max_area:
 			max_area = area
 			max_index = i
-		i=i+1
+
 	cv2.drawContours(z,cnt,max_index,255,cv2.FILLED)
 	return z
 
-def extractObject(bg,img):
+def extractObject(bg=None,img=None):
 	img = cv2.resize(img,(960,540))
 	fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
 	mask = fgbg.apply(bg)
@@ -140,7 +233,7 @@ def generate_rcnn_masks(image_path, rcnn_mask, classes_list):
 		if max(np.ndarray.flatten(mask)) != 255:
 			continue
 		instance_number = classes_list.count(class_name)
-		mask_path = [image_path.split('.')[0],class_name,str(instance_number)+'.PNG']
+		mask_path = [image_path.split('.')[0],class_name,str(instance_number)+'.png']
 		mask_path = '-'.join(mask_path)
 		mask_path = mask_path.replace('images_','annotations_')
 		cv2.imwrite(mask_path,mask)

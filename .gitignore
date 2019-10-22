@@ -1,10 +1,13 @@
 *.JPG
 *.jpg
 *.MOV
+*.mov
 *.names
 *.csv
 *.pyc
 *.txt
+*.PNG
+*.png
 labels/
 generated_pictures/*
 generated_pictures/**/*

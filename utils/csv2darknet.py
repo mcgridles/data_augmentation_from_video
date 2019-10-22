@@ -70,7 +70,7 @@ def main(NAME, IMAGES_DIR, TRAIN_CSV, DARKNET_DIR):
 	data_file.close()
 
 	train_file = open(directory+'train.txt','w')
-	for filename in glob.glob(IMAGES_DIR+'*.JPG'):
+	for filename in glob.glob(IMAGES_DIR+'*.jpg'):
 		train_file.write(this_path+'/'+filename+'\n')
 	train_file.close()
 

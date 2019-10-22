@@ -6,32 +6,54 @@ import sys
 
 FPS = 30
 
-def extract_from_video(video_path, output_dirname, start_time=5, end_time=52, frame_increment=1):	
-	vid = cv2.VideoCapture(video_path)
-	_, bg = vid.read()
-	bg = cv2.resize(bg,(960,540))
-	
-	start_frame = FPS*start_time
-	end_frame   = FPS*end_time
-	frame = start_frame
-	frames_processed = 0
-	total_frames_to_process = int((end_frame-start_frame)/frame_increment)
-	filename_char_length = len('%d.PNG'%total_frames_to_process)
-	while frame <= end_frame:
-		vid.set(1, frame)
-		_, img = vid.read()
-		img = masker.extractObject(bg, img)
-		filename = os.path.join(output_dirname, ('%d.PNG'%frames_processed).zfill(filename_char_length))
-		cv2.imwrite(filename, img)
 
-		# Print progress
-		frames_processed += 1
-		percent_done = float(frames_processed)/total_frames_to_process
-		progress_bar = '['+('='*int(percent_done*30))+'>'*(1-int(percent_done))+('-'*(29-int(percent_done*30)))+']'
-		sys.stdout.write('\r'+progress_bar+' %d of %d generated'%(frames_processed, total_frames_to_process))
-		sys.stdout.flush()
+def show_progress(current, total, label=''):
+	percent_done = round(float(current)/total, 2)
+	if label:
+		label += ' '
+
+	equals = '='*int(percent_done*30)
+	arrow = '>'*(1-int(percent_done))
+	dash = '-'*(29-int(percent_done*30))
+	progress_bar = '{0}[{1}{2}{3}] {4}%'.format(label, equals, arrow, dash, percent_done*100)
+
+	sys.stdout.write('\r{0} {1} of {2} generated'.format(progress_bar, current, total))
+	sys.stdout.flush()
+
+
+def extract_from_video(video_path, output_dir, start_time=5, end_time=52, frame_increment=1):	
+	start_frame = FPS * start_time
+	end_frame = FPS * end_time
+	frame = 0
+	frames_processed = 0
+	total_frames_to_process = int((end_frame - start_frame) / frame_increment)
+	filename_char_length = len('%d.png' % total_frames_to_process)
+
+	cap = cv2.VideoCapture(video_path)
+	obj_extractor = masker.ObjectExtractor(extract_type='simple')
+
+	ret = True
+	while ret and (frame <= end_frame):
+		ret, img = cap.read()
+
+		if frame <= start_frame:
+			# Learn background pixels using background subtraction
+			obj_extractor.learnBackground(img)
+		else:
+			# Extract object and crop
+			obj = obj_extractor.extractObject(img, thresh=100)
+			obj_framed = masker.cropBox(obj)
+
+			# Save image
+			filename = os.path.join(output_dir, ('%d.png'%frames_processed).zfill(filename_char_length))
+			cv2.imwrite(filename, obj_framed)
+
+			# Print progress
+			frames_processed += 1
+			show_progress(frames_processed, total_frames_to_process)
 
 		frame += frame_increment
 
-	vid.release()
+	cap.release()
+	cv2.destroyAllWindows()
 	print('')

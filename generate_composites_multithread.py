@@ -11,7 +11,7 @@ def print_progress(img_dir, total_composites, indices_tuples):
 	num_pics = 0
 	while num_pics != total_composites:
 		if os.path.exists(img_dir):
-			num_pics = len(glob.glob(img_dir+'/*.JPG'))
+			num_pics = len(glob.glob(img_dir+'/*.jpg'))
 			sys.stdout.write('\r'+str(num_pics)+' of '+str(total_composites)+' generated')
 			sys.stdout.flush()
 
@@ -19,7 +19,7 @@ def print_progress(img_dir, total_composites, indices_tuples):
 	num_pics = 0
 	while num_pics != total_composites:
 		if os.path.exists(img_dir):
-			all_composites = glob.glob(os.path.join(img_dir, '*.JPG'))
+			all_composites = glob.glob(os.path.join(img_dir, '*.jpg'))
 			num_pics = len(all_composites)
 			progress = ''
 			for i in indices_tuples:

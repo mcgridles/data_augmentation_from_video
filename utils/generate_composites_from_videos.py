@@ -16,7 +16,7 @@ root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def random_extract(pngs_dir, class_id):
 	candidate_dirs = [i for i in glob.glob(os.path.join(pngs_dir, '*')) if os.path.isdir(i)]
 	rand_dir = rand.choice(candidate_dirs)
-	rand_img_path = rand.choice(glob.glob(os.path.join(rand_dir, '*.PNG')) + glob.glob(os.path.join(rand_dir, '*.png')))
+	rand_img_path = rand.choice(glob.glob(os.path.join(rand_dir, '*.png')))
 	img = cv2.imread(rand_img_path, cv2.IMREAD_UNCHANGED)
 	class_name = pngs_dir.split('-')[-1].split('.')[0]
 	img = masker.rotateObject(img)
@@ -93,7 +93,7 @@ def main(pngs_dir, start_index, end_index, name, print_info=True):
 		# composite = distorter.randomNoise(composite)
 		
 		# Save composite
-		filename = os.path.join(img_dir, '%d.JPG'%x)
+		filename = os.path.join(img_dir, '%d.jpg'%x)
 		cv2.imwrite(filename, composite)
 
 		# Save masks for objects that appear in the composite 

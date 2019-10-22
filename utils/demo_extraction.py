@@ -19,8 +19,8 @@ while(1):
 	# fgmask = fgbg.apply(bg)
 	# fgmask = fgbg.apply(frame)
 	fgmask = masker.extractObject(bg,frame)
-	# fgmask = masker.erodeInflateSmart(fgmask,size1=10,size2=10)
-	# fgmask = masker.inflateErode(fgmask,size=15)
+	# fgmask = extractor.erodeInflateSmart(fgmask,size1=10,size2=10)
+	# fgmask = extractor.inflateErode(fgmask,size=15)
 	cv2.imshow('frame',fgmask)
 	k = cv2.waitKey(30) & 0xff
 	if k == 27:
