@@ -192,3 +192,7 @@ def main():
 
 	config = ShapesConfig()
 	config.display()
+
+
+if __name__ == '__main__':
+    main()

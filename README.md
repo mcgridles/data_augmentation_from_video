@@ -1,4 +1,4 @@
-# Artificial Training Data Generation for Mask R-CNN
+# Data Tools for Mask R-CNN Artificial Training
 
 Generate several artifical composites with pixelwise annotations for each object, using videos taken of each object rotating atop a turntable.
 

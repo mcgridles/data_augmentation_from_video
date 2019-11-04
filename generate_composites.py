@@ -1,5 +1,3 @@
-import masker, distorter
-
 import glob, os
 import cv2 
 import numpy as np
@@ -7,22 +5,29 @@ import random as rand
 import sys
 import argparse
 
+import masker, distorter
+
 NUM_CLASSES_IN_EACH_COMPOSITE = 4
 COMPOSITE_WIDTH  = 750
 COMPOSITE_HEIGHT = 500
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 def random_extract(pngs_dir, class_id):
 	candidate_dirs = [i for i in glob.glob(os.path.join(pngs_dir, '*')) if os.path.isdir(i)]
+
 	rand_dir = rand.choice(candidate_dirs)
 	rand_img_path = rand.choice(glob.glob(os.path.join(rand_dir, '*.png')))
+
 	img = cv2.imread(rand_img_path, cv2.IMREAD_UNCHANGED)
 	class_name = pngs_dir.split('-')[-1].split('.')[0]
 	img = masker.rotateObject(img)
+	
 	return img, class_name
 
-def main(pngs_dir, start_index, end_index, name, print_info=True):
+
+def generate_composites(pngs_dir, start_index, end_index, name, print_info=True):
 	# How many different classes?
 	pngs_folders = [i for i in glob.glob(os.path.join(pngs_dir,'*')) if os.path.isdir(i)]
 	num_classes = 0 
@@ -102,7 +107,8 @@ def main(pngs_dir, start_index, end_index, name, print_info=True):
 			sys.stdout.write('\r'+str(x-start_index+1)+' of '+str(end_index-start_index+1)+' generated')
 			sys.stdout.flush()
 
-if __name__ == "__main__":
+
+def main():
 	parser = argparse.ArgumentParser(description='Process some integers.')
 	parser.add_argument('start_index', type=int,
 	                    help='start index')
@@ -120,4 +126,8 @@ if __name__ == "__main__":
 	name             = args.dataset_name 
 	pngs_dir         = args.path_to_png_folders
 
-	main(pngs_dir, start_index, end_index, name)
+	generate_composites(pngs_dir, start_index, end_index, name)
+
+
+if __name__ == "__main__":
+	main()	

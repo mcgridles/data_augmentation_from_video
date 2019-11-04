@@ -2,8 +2,9 @@ import sys
 import os
 import glob
 import argparse
-from multiprocessing import Process
-from utils.generate_composites_from_videos import main as generate_composites
+import multiprocessing as mp
+
+from data_tools.generate_composites import generate_composites
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,35 +30,33 @@ def print_progress(img_dir, total_composites, indices_tuples):
 			sys.stdout.flush()
 
 
-if __name__ == '__main__':
+def main():
 	parser = argparse.ArgumentParser(description='Process some integers.')
-	parser.add_argument('num_composites', type=int,
-	                    help='total amount of composites to generate')
-	parser.add_argument('num_generators', type=int,
-	                    help='amount of generators to create composites')
-	parser.add_argument('dataset_name',
-	                    help='name for the dataset')
-	parser.add_argument('path_to_png_folders',
-	                    help='path to directory containing folders of PNGs')
+
+	parser.add_argument('--composites', '-c', type=int, help='Total number of composites to generate', default=1000)
+	parser.add_argument('--threads', '-t', type=int, help='Number of threads (processes) for creating composites', default=1)
+	parser.add_argument('--dataset', '-d', help='Name of the dataset')
+	parser.add_argument('--path', '-p', help='Path to directory containing PNG folders')
+
 	args = parser.parse_args()
 	
 	# Parse arguments
-	total_composites = args.num_composites
-	num_generators   = args.num_generators
-	name             = args.dataset_name 
-	pngs_dir         = args.path_to_png_folders
-	batch_size       = int(float(total_composites)/float(num_generators))
+	total_composites = args.composites
+	num_processes    = args.threads
+	dataset          = args.dataset 
+	png_dir          = args.path
+	batch_size       = int(float(total_composites)/float(num_processes))
 
 	# Figure out number of classes
-	pngs_folders = [i for i in glob.glob(os.path.join(pngs_dir,'*')) if os.path.isdir(i)]
+	pngs_folders = [i for i in glob.glob(os.path.join(png_dir,'*')) if os.path.isdir(i)]
 	num_classes = 0 
 	for png_folder in pngs_folders:
 		png_folder_id = int(os.path.basename(png_folder).split('-')[0])
-		num_classes = max(num_classes, png_folder_id+1)
+		num_classes = max(num_classes, png_folder_id + 1)
 
 	# Create directories
-	ann_dir = os.path.join(this_dir, 'data/generated_pictures/annotations_'+name)
-	img_dir = os.path.join(this_dir, 'data/generated_pictures/images_'+name)
+	ann_dir = os.path.join(this_dir, 'data/generated_pictures/annotations_' + dataset)
+	img_dir = os.path.join(this_dir, 'data/generated_pictures/images_' + dataset)
 	for directory in [ann_dir, img_dir]:
 		if not os.path.exists(directory):
 			os.makedirs(directory)
@@ -65,17 +64,25 @@ if __name__ == '__main__':
 	# Spawn composite generator scripts
 	processes = list()
 	indices_tuples = list()
-	for i in xrange(num_generators):
-		start_index = i*batch_size
-		end_index = min((i+1)*batch_size-1, total_composites)
-		p = Process(target=generate_composites, args=(pngs_dir, start_index, end_index, name, False))
+	for i in xrange(num_processes):
+		start_index = i * batch_size
+		end_index = min((i+1) * batch_size - 1, total_composites)
+
+		p = mp.Process(target=generate_composites, args=(png_dir, start_index, end_index, dataset, False))
 		p.start()
 		processes.append(p)
+
 		indices_tuples.append((start_index, end_index))
 
 	# Spawn print progress process
-	print_p = Process(target=print_progress, args=(img_dir, total_composites, indices_tuples))
+	print_p = mp.Process(target=print_progress, args=(img_dir, total_composites, indices_tuples))
 	print_p.start()
+
 	for p in processes:
 		p.join()
+
 	print_p.join()
+
+
+if __name__ == '__main__':
+	main()

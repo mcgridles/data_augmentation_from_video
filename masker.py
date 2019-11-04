@@ -95,10 +95,12 @@ class ObjectExtractor:
 
 		return img
 
+
 def cropBox(img): # Input: Image with only the object
 	mask = img[:,:,3]
 	x,y,w,h = cv2.boundingRect(mask)
 	return img[y:y+h,x:x+w]
+
 
 def inflateErode(mask,size=50):
 	mask2 = mask.copy()
@@ -108,6 +110,7 @@ def inflateErode(mask,size=50):
 	mask2[mask2<255] = 0
 	return mask2
 
+
 def erodeInflate(mask,size=20):
 	mask2 = mask.copy()
 	mask2 = cv2.blur(mask2,(size,size))
@@ -115,6 +118,7 @@ def erodeInflate(mask,size=20):
 	mask2 = cv2.blur(mask2,(size,size))
 	mask2[mask2>0] = 255
 	return mask2
+
 
 def erodeInflateSmart(mask,size1=20,size2=20):
 	mask2 = mask.copy()
@@ -124,6 +128,7 @@ def erodeInflateSmart(mask,size1=20,size2=20):
 	mask3 = mask.copy()
 	mask3[mask2==0] = 0
 	return mask3
+
 
 def contourMask(mask):
 	_,cnt,_ = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
@@ -140,6 +145,7 @@ def contourMask(mask):
 	cv2.drawContours(z,cnt,max_index,255,cv2.FILLED)
 	return z
 
+
 def extractObject(bg=None,img=None):
 	img = cv2.resize(img,(960,540))
 	fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
@@ -154,6 +160,7 @@ def extractObject(bg=None,img=None):
 	img = cropBox(img)
 	return img
 
+
 def rotateObject(img):
 	height = img.shape[0]
 	width = img.shape[1]
@@ -167,6 +174,7 @@ def rotateObject(img):
 	dst = cv2.warpAffine(blank_image,M,(hypotenuse,hypotenuse))
 	dst = cropBox(dst)
 	return dst
+
 
 def createComposite(img, mask, rcnn_mask, class_name=None, classes_list=None):
 	timeup = time.time()+10
@@ -221,6 +229,7 @@ def createComposite(img, mask, rcnn_mask, class_name=None, classes_list=None):
 	height = mask.shape[0]
 	ret = True
 	return ret,width,height,xmin,ymin,xmax,ymax
+
 
 def generate_rcnn_masks(image_path, rcnn_mask, classes_list):
 	_, _, _, alpha = cv2.split(rcnn_mask)

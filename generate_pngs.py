@@ -1,24 +1,11 @@
-import masker
-
 import os
 import cv2 
 import sys
 
+import masker
+from utils import show_progress
+
 FPS = 30
-
-
-def show_progress(current, total, label=''):
-	percent_done = round(float(current)/total, 2)
-	if label:
-		label += ' '
-
-	equals = '='*int(percent_done*30)
-	arrow = '>'*(1-int(percent_done))
-	dash = '-'*(29-int(percent_done*30))
-	progress_bar = '{0}[{1}{2}{3}] {4}%'.format(label, equals, arrow, dash, percent_done*100)
-
-	sys.stdout.write('\r{0} {1} of {2} generated'.format(progress_bar, current, total))
-	sys.stdout.flush()
 
 
 def extract_from_video(video_path, output_dir, start_time=5, end_time=52, frame_increment=1):	
