@@ -53,9 +53,9 @@ Run
 
 ```bash
 python scripts/generate_composites_multithread.py --composites <COMPOSITES> \
-			--threads <THREADS> \
-												  --dataset <DATASET> \
-												  --path <PATH>
+									  --threads <THREADS> \
+									  --dataset <DATASET> \
+									  --path <PATH>
 ```
 
 Where 
