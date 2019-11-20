@@ -36,7 +36,7 @@ def generate_composites(pngs_dir, start_index, end_index, name, print_info=True)
 		num_classes = max(num_classes, png_folder_id+1)
 
 	if print_info:
-		print "Detected %s different classes" % num_classes
+		print("Detected {} different classes".format(num_classes))
 		
 	# Create directories if they don't already exist
 	ann_dir = os.path.join(root_dir, 'data/generated_pictures/annotations_'+name)

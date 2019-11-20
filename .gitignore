@@ -1,13 +1,21 @@
+# Data files
 *.JPG
 *.jpg
 *.MOV
 *.mov
 *.names
 *.csv
-*.pyc
 *.txt
 *.PNG
 *.png
+
+# Data folders
 labels/
 generated_pictures/*
 generated_pictures/**/*
+
+# Python stuff
+__pycache__
+.idea/
+.ipynb_checkpoints/
+*.pyc

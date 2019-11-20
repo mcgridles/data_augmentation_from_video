@@ -26,6 +26,10 @@ class ObjectExtractor:
 			self._learnBackgroundSimple(bg)
 		elif self.extract_type == 'MOG':
 			self._learnBackgroundMOG(bg)
+		elif self.extract_type == 'legacy':
+			self.bg = bg
+		else:
+			raise Exception('Unknown extraction type: {}'.format(self.extract_type))
 
 	def _learnBackgroundSimple(self, bg):
 		"""
@@ -56,6 +60,10 @@ class ObjectExtractor:
 			img = self._extractObjectSimple(img, thresh)
 		elif self.extract_type == 'MOG':
 			img = self._extractObjectMOG(img)
+		elif self.extract_type == 'legacy':
+			img = self._extractObjectLegacy(img, self.bg)
+		else:
+			raise Exception('Unknown extraction type: {}'.format(self.extract_type))
 
 		return img
 
@@ -92,6 +100,23 @@ class ObjectExtractor:
 
 		img = cv2.cvtColor(img,cv2.COLOR_BGR2BGRA)
 		img[mask==0] = (0,0,0,0)
+
+		return img
+
+	def _extractObjectLegacy(bg=None, img=None):
+		img = cv2.resize(img,(960,540))
+		fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
+
+		mask = fgbg.apply(bg)
+		mask = fgbg.apply(bg)
+		mask = fgbg.apply(img)
+		mask = inflateErode(mask,40)
+		mask = erodeInflateSmart(mask,20)
+		mask = contourMask(mask)
+
+		img = cv2.cvtColor(img,cv2.COLOR_BGR2BGRA)
+		img[mask==0] = (0,0,0,0)
+		img = cropBox(img)
 
 		return img
 
@@ -144,21 +169,6 @@ def contourMask(mask):
 
 	cv2.drawContours(z,cnt,max_index,255,cv2.FILLED)
 	return z
-
-
-def extractObject(bg=None,img=None):
-	img = cv2.resize(img,(960,540))
-	fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
-	mask = fgbg.apply(bg)
-	mask = fgbg.apply(bg)
-	mask = fgbg.apply(img)
-	mask = inflateErode(mask,40)
-	mask = erodeInflateSmart(mask,20)
-	mask = contourMask(mask)
-	img = cv2.cvtColor(img,cv2.COLOR_BGR2BGRA)
-	img[mask==0] = (0,0,0,0)
-	img = cropBox(img)
-	return img
 
 
 def rotateObject(img):

@@ -12,8 +12,8 @@ VIDEO_DIR = os.path.join(ROOT_DIR, 'data/videos')
 def generate_pngs(video_name, video_file):
 	os.mkdir(video_name)
 	basename = os.path.basename(video_file)
-	print 'Found unprocessed video: ', basename
-	print 'Generating pngs...'
+	print('Found unprocessed video: ', basename)
+	print('Generating pngs...')
 		
 	# Make the output folder
 	extract_from_video(

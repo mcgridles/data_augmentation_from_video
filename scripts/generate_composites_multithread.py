@@ -34,8 +34,8 @@ def print_progress(img_dir, total_composites, indices_tuples):
 def main():
 	parser = argparse.ArgumentParser(description='Process some integers.')
 
-	parser.add_argument('--composites', '-c', type=int, help='Total number of composites to generate', default=1000)
-	parser.add_argument('--threads', '-t', type=int, help='Number of threads (processes) for creating composites', default=1)
+	parser.add_argument('--composites', '-c', type=int, metavar='N', help='Total number of composites to generate', default=1000)
+	parser.add_argument('--threads', '-t', type=int, metavar='N', help='Number of threads (processes) for creating composites', default=1)
 	parser.add_argument('--dataset', '-d', help='Name of the dataset')
 	parser.add_argument('--path', '-p', help='Path to directory containing PNG folders')
 
