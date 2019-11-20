@@ -53,7 +53,7 @@ Run
 
 ```bash
 python scripts/generate_composites_multithread.py --composites <COMPOSITES> \
-												  --threads <THREADS> \
+			--threads <THREADS> \
 												  --dataset <DATASET> \
 												  --path <PATH>
 ```
