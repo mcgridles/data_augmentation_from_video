@@ -4,7 +4,8 @@ import glob
 import argparse
 import multiprocessing as mp
 
-from data_tools.generate_composites import generate_composites
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from generate_composites import generate_composites
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

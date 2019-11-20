@@ -2,9 +2,10 @@ import glob
 import sys
 import os
 
-from data_tools.generate_pngs import extract_from_video
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(ROOT_DIR)
+from generate_pngs import extract_from_video
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_DIR = os.path.join(ROOT_DIR, 'data/videos')
 
 

@@ -19,8 +19,19 @@ def show_progress(current, total, label=''):
 
 
 def optical_flow(im1, im2):
-	im1 = cv2.GaussianBlur(im1, (3, 3), 1)
-	im2 = cv2.GaussianBlur(im2, (3, 3), 1)
+	h, w, _ = im1.shape
+	scale_factor = 50
+	height = h * scale_factor / 100
+	width = w * scale_factor / 100
+	dim = (width, height)
+
+	im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
+	im2 = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
+	im1 = cv2.resize(im1, dim)
+	im2 = cv2.resize(im2, dim)
+
+	im1 = cv2.GaussianBlur(im1, (9, 9), 1)
+	im2 = cv2.GaussianBlur(im2, (9, 9), 1)
 
 	I_x = cv2.Sobel(im2, cv2.CV_64F, 1, 0, ksize=3);  # x gradient
 	I_y = cv2.Sobel(im2, cv2.CV_64F, 0, 1, ksize=3);  # y gradient
@@ -44,20 +55,20 @@ def optical_flow(im1, im2):
 	for i in range(im1.shape[0]):
 		for j in range(im1.shape[1]):
 			A_2 = [
-				[sum_Ixx[i,j,:], sum_Ixy[i,j,:]],
-				[sum_Ixy[i,j,:], sum_Iyy[i,j,:]]
+				[sum_Ixx[i,j], sum_Ixy[i,j]],
+				[sum_Ixy[i,j], sum_Iyy[i,j]]
 			]
 			Ab = [
-				[sum_Ixt[i,j,:]],
-				[sum_Iyt[i,j,:]]
+				[sum_Ixt[i,j]],
+				[sum_Iyt[i,j]]
 			]
 
 			if np.linalg.det(A_2) == 0:
-				u[i,j,:] = np.zeros((1,1,3))
-				v[i,j,:] = np.zeros((1,1,3))
+				u[i,j] = 0
+				v[i,j] = 0
 			else:
 				of = -np.linalg.solve(A_2, Ab)
-				u[i,j,:] = of[0,:]
-				v[i,j,:] = of[1,:]
+				u[i,j] = of[0]
+				v[i,j] = of[1]
 
 	return u, v
